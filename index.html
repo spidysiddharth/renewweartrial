@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renew Wear | Interactive Project Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Typography Setup */
+        body { font-family: 'Outfit', sans-serif; background-color: #FAF9F6; color: #334155; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; color: #0F172A; }
+
+        /* Chart Container Styling (Mandatory) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+            padding: 1rem;
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #E2E8F0;
+            overflow: hidden;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tab Active State */
+        .tab-active { border-bottom: 2px solid #0D9488; color: #0D9488; font-weight: 600; }
+        .tab-inactive { border-bottom: 2px solid transparent; color: #64748B; }
+        .tab-inactive:hover { color: #0D9488; border-bottom: 2px solid #99F6E4; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col selection:bg-teal-200 selection:text-teal-900">
+
+    <!-- Chosen Palette: Warm Neutrals & Deep Teal Accent -->
+    <!-- Application Structure Plan: The application is structured as an interactive dashboard divided into four thematic tabs: 'Overview', 'Market Validation', 'Financials', and 'Tech & Platform'. This non-linear structure was chosen because an academic report can be dense; a dashboard allows users to immediately jump to their area of interest (e.g., a business analyst can go straight to financials, a developer to tech). The flow starts with the problem/solution narrative, validates it with survey data, proves viability with financials, and explains the execution via the tech stack. -->
+    <!-- Visualization & Content Choices: 
+        1. Market Validation (Survey Data) -> Goal: Organize/Inform -> Viz: Donut & Bar Charts (Chart.js) -> Justification: Clearly contrasts the main barriers to donating vs. the factors that build trust in second-hand platforms.
+        2. Financial Projections -> Goal: Change/Compare -> Viz: Line Chart (Growth) & Stacked Bar (Unit Economics) (Chart.js) -> Justification: A line chart perfectly illustrates the trajectory to 7Cr revenue, while a stacked bar effectively breaks down cost, processing, and profit margins per item.
+        3. Tech Stack -> Goal: Organize -> Viz: Interactive HTML/CSS Grid Cards -> Justification: Breaks down complex platform architecture (Clerk, Cloudinary, ResNet) into digestible, clickable insights.
+        4. Icons/Graphics -> Unicode symbols used exclusively to adhere to the NO SVG rule while maintaining a modern aesthetic.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Header Navigation -->
+    <header class="bg-white sticky top-0 z-50 border-b border-slate-200 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl" aria-hidden="true">&#x267B;&#xFE0F;</span>
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-tight text-slate-800">Renew Wear</h1>
+                        <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Project Analysis Dashboard</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-8" aria-label="Main Navigation">
+                    <button class="nav-tab tab-active py-4 px-2 text-sm focus:outline-none transition-colors" data-target="section-overview">Overview</button>
+                    <button class="nav-tab tab-inactive py-4 px-2 text-sm focus:outline-none transition-colors" data-target="section-validation">Market Data</button>
+                    <button class="nav-tab tab-inactive py-4 px-2 text-sm focus:outline-none transition-colors" data-target="section-financials">Financials</button>
+                    <button class="nav-tab tab-inactive py-4 px-2 text-sm focus:outline-none transition-colors" data-target="section-tech">Platform & Tech</button>
+                </nav>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-500 hover:text-slate-700 focus:outline-none text-2xl">
+                        &#x2630;
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100">
+            <div class="flex flex-col space-y-1 px-4 py-3">
+                <button class="nav-tab tab-active py-2 text-left text-sm" data-target="section-overview">Overview</button>
+                <button class="nav-tab tab-inactive py-2 text-left text-sm" data-target="section-validation">Market Data</button>
+                <button class="nav-tab tab-inactive py-2 text-left text-sm" data-target="section-financials">Financials</button>
+                <button class="nav-tab tab-inactive py-2 text-left text-sm" data-target="section-tech">Platform & Tech</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= SECTION: OVERVIEW ================= -->
+        <section id="section-overview" class="content-section fade-in">
+            <div class="mb-10 text-center max-w-3xl mx-auto">
+                <span class="inline-block py-1 px-3 rounded-full bg-teal-50 text-teal-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-teal-200">Executive Summary</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">Smarter, Sustainable <span class="text-teal-700">Student Living</span></h2>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    This section provides a high-level summary of the Renew Wear initiative. It contextualizes the core problem of campus waste generated during academic transitions and outlines our circular economy solution. By exploring this section, users understand the fundamental 'Why' and 'What' of the project before diving into the supporting data.
+                </p>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-left">
+                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2"><span class="text-2xl">&#x1F3AF;</span> Our Motto</h3>
+                    <p class="text-slate-700 italic border-l-4 border-teal-500 pl-4 py-2 bg-slate-50 rounded-r-lg">"Sustaining Student Life – One Reused Item at a Time."</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <!-- Problem Card -->
+                <div class="bg-white rounded-2xl p-8 border border-rose-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl group-hover:opacity-20 transition-opacity">&#x26A0;&#xFE0F;</div>
+                    <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-sm">&#x1F6A8;</div>
+                    <h3 class="text-2xl font-bold mb-4 text-slate-800">The Campus Waste Crisis</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <span class="text-rose-500 mt-1">&#x2716;&#xFE0F;</span>
+                            <span class="text-slate-600"><strong>High Student Turnover:</strong> Graduations and internships lead to frequent relocations and massive item abandonment.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-rose-500 mt-1">&#x2716;&#xFE0F;</span>
+                            <span class="text-slate-600"><strong>Informal & Unsafe Trading:</strong> Reliance on unverified WhatsApp groups or word-of-mouth is unreliable and inconvenient.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-rose-500 mt-1">&#x2716;&#xFE0F;</span>
+                            <span class="text-slate-600"><strong>Environmental Degradation:</strong> Perfectly usable goods end up in landfills, creating unnecessary carbon emissions.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Solution Card -->
+                <div class="bg-white rounded-2xl p-8 border border-teal-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl group-hover:opacity-20 transition-opacity">&#x1F331;</div>
+                    <div class="w-12 h-12 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-sm">&#x1F4A1;</div>
+                    <h3 class="text-2xl font-bold mb-4 text-slate-800">The Renew Wear Solution</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <span class="text-teal-500 mt-1">&#x2714;&#xFE0F;</span>
+                            <span class="text-slate-600"><strong>Centralized Resale:</strong> A dedicated C2C and C2B2C marketplace tailored exclusively for the student ecosystem.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-teal-500 mt-1">&#x2714;&#xFE0F;</span>
+                            <span class="text-slate-600"><strong>Smart & Secure:</strong> AI-powered valuation, verified user profiles (Clerk), and secure payment gateways.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-teal-500 mt-1">&#x2714;&#xFE0F;</span>
+                            <span class="text-slate-600"><strong>Eco-Conscious Logistics:</strong> Hyper-local peer-to-peer exchanges and planned 24/7 smart lockers minimize transport emissions.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="bg-indigo-900 rounded-2xl p-8 text-white shadow-lg text-center">
+                <h3 class="text-2xl font-bold mb-4">Value Proposition</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                    <div class="p-4 bg-indigo-800/50 rounded-xl border border-indigo-700/50 hover:bg-indigo-800 transition-colors">
+                        <div class="text-3xl mb-2">&#x1F4B8;</div>
+                        <div class="font-semibold text-sm uppercase tracking-wider text-indigo-200">Affordable</div>
+                    </div>
+                    <div class="p-4 bg-indigo-800/50 rounded-xl border border-indigo-700/50 hover:bg-indigo-800 transition-colors">
+                        <div class="text-3xl mb-2">&#x1F30E;</div>
+                        <div class="font-semibold text-sm uppercase tracking-wider text-indigo-200">Sustainable</div>
+                    </div>
+                    <div class="p-4 bg-indigo-800/50 rounded-xl border border-indigo-700/50 hover:bg-indigo-800 transition-colors">
+                        <div class="text-3xl mb-2">&#x1F512;</div>
+                        <div class="font-semibold text-sm uppercase tracking-wider text-indigo-200">Secure</div>
+                    </div>
+                    <div class="p-4 bg-indigo-800/50 rounded-xl border border-indigo-700/50 hover:bg-indigo-800 transition-colors">
+                        <div class="text-3xl mb-2">&#x1F9E0;</div>
+                        <div class="font-semibold text-sm uppercase tracking-wider text-indigo-200">AI-Driven</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION: MARKET VALIDATION ================= -->
+        <section id="section-validation" class="content-section hidden fade-in">
+            <div class="mb-10 text-center max-w-3xl mx-auto">
+                <span class="inline-block py-1 px-3 rounded-full bg-indigo-50 text-indigo-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-indigo-200">Data & Demographics</span>
+                <h2 class="text-4xl font-extrabold mb-6">Market <span class="text-indigo-600">Validation</span></h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    This section visualizes the quantitative survey data collected from our target demographic. It aims to inform users about the specific behaviors and pain points of students regarding second-hand goods. By interacting with these charts, users can synthesize why a verified, structured platform is necessary to overcome the barriers of trust and inconvenience.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- Chart 1: Barriers to Donating -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center">
+                    <h3 class="text-xl font-bold mb-2 text-slate-800 text-center">Why Students Discard Usable Items</h3>
+                    <p class="text-sm text-slate-500 mb-6 text-center">Main barriers preventing the donation/resale of old clothes and reusable items.</p>
+                    <div class="chart-container w-full flex-grow flex items-center justify-center">
+                        <canvas id="barriersChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100 w-full">
+                        <p class="text-sm text-amber-800"><strong class="font-bold">&#x1F4A1; Insight:</strong> Over 90% of students discard items simply because they don't have a reliable avenue. The supply exists; the infrastructure does not.</p>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Trust Factors -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center">
+                    <h3 class="text-xl font-bold mb-2 text-slate-800 text-center">Building Trust in Resale</h3>
+                    <p class="text-sm text-slate-500 mb-6 text-center">Factors that would encourage purchasing from a second-hand platform.</p>
+                    <div class="chart-container w-full flex-grow flex items-center justify-center">
+                        <canvas id="trustChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-4 bg-teal-50 rounded-xl border border-teal-100 w-full">
+                        <p class="text-sm text-teal-800"><strong class="font-bold">&#x1F4A1; Insight:</strong> Quality certification and clear return policies are the highest drivers of trust, validating Renew Wear's AI verification and 2-day return window.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-3xl font-extrabold text-indigo-600 mb-1">77.4%</div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Motivated by Lower Price</div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-3xl font-extrabold text-indigo-600 mb-1">67.7%</div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Would Donate Clothes</div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-3xl font-extrabold text-indigo-600 mb-1">58.1%</div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Would Donate Books</div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-3xl font-extrabold text-indigo-600 mb-1">90.3%</div>
+                    <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Concerned about Quality</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION: FINANCIALS ================= -->
+        <section id="section-financials" class="content-section hidden fade-in">
+            <div class="mb-10 text-center max-w-3xl mx-auto">
+                <span class="inline-block py-1 px-3 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-emerald-200">Business Viability</span>
+                <h2 class="text-4xl font-extrabold mb-6">Financial <span class="text-emerald-600">Projections</span></h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    This section translates the business model into interactive visualizations. The purpose is to allow stakeholders to compare unit economics across product categories and observe projected revenue growth over a three-year timeline. It highlights the profitability and scalability of the C2B2C model.
+                </p>
+            </div>
+
+            <!-- Financial Controls -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex bg-slate-100 rounded-lg p-1 border border-slate-200">
+                    <button onclick="toggleFinancialView('growth')" id="btn-growth" class="px-6 py-2 rounded-md text-sm font-semibold bg-white text-slate-800 shadow-sm transition-all">Revenue Growth</button>
+                    <button onclick="toggleFinancialView('unit')" id="btn-unit" class="px-6 py-2 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-700 transition-all">Unit Economics</button>
+                </div>
+            </div>
+
+            <!-- Chart 3: Revenue Growth (Initially Visible) -->
+            <div id="view-growth" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">3-Year Revenue Forecast</h3>
+                        <p class="text-sm text-slate-500">Projected top-line revenue and gross profit margin.</p>
+                    </div>
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm text-slate-500">Break-even target:</div>
+                        <div class="font-bold text-emerald-600">Month 5 (~700 orders)</div>
+                    </div>
+                </div>
+                <div class="chart-container w-full">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="mt-6 grid grid-cols-3 gap-4 border-t border-slate-100 pt-6">
+                    <div class="text-center">
+                        <div class="text-sm text-slate-500 mb-1">Year 1</div>
+                        <div class="text-xl font-bold text-slate-800">&#x20B9; 1.5 Cr</div>
+                        <div class="text-xs text-emerald-600 font-medium">35% Margin</div>
+                    </div>
+                    <div class="text-center border-l border-slate-100">
+                        <div class="text-sm text-slate-500 mb-1">Year 2</div>
+                        <div class="text-xl font-bold text-slate-800">&#x20B9; 3.5 Cr</div>
+                        <div class="text-xs text-emerald-600 font-medium">40% Margin</div>
+                    </div>
+                    <div class="text-center border-l border-slate-100">
+                        <div class="text-sm text-slate-500 mb-1">Year 3</div>
+                        <div class="text-xl font-bold text-slate-800">&#x20B9; 7.0 Cr</div>
+                        <div class="text-xs text-emerald-600 font-medium">50% Margin</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart 4: Unit Economics (Initially Hidden) -->
+            <div id="view-unit" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hidden">
+                 <div class="mb-4">
+                    <h3 class="text-xl font-bold text-slate-800">Pricing Strategy & Margins</h3>
+                    <p class="text-sm text-slate-500">Breakdown of sourcing cost, processing cost, and gross profit per item category.</p>
+                </div>
+                <div class="chart-container w-full">
+                    <canvas id="unitEconomicsChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-slate-50 rounded-2xl p-6 border border-slate-200 flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm border border-slate-100 flex-shrink-0">&#x1F4BC;</div>
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-1">Revenue Streams</h4>
+                    <p class="text-sm text-slate-600">The platform generates income primarily through a <strong>5-10% transaction commission</strong>, complemented by premium listing fees, VIP subscription models (&#x20B9;499/month for free delivery & early access), and B2B bulk sales to universities.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION: TECH & PLATFORM ================= -->
+        <section id="section-tech" class="content-section hidden fade-in">
+            <div class="mb-10 text-center max-w-3xl mx-auto">
+                <span class="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-blue-200">System Architecture</span>
+                <h2 class="text-4xl font-extrabold mb-6">Platform & <span class="text-blue-600">Technology</span></h2>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    This section details the robust technological foundation of the Renew Wear SPA. It organizes the platform's features by mapping the tech stack to specific user benefits. Users can interact with the architecture components to understand how AI, cloud databases, and modern auth frameworks create a secure and seamless experience.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Auth -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group" onclick="toggleTechDetail('tech-auth')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">&#x1F510;</div>
+                        <div class="text-slate-300 group-hover:text-blue-500 transition-colors">&#x2192;</div>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Clerk Authentication</h3>
+                    <p class="text-sm text-slate-500 line-clamp-2" id="desc-tech-auth">Military-grade identity verification using OTPs and Google OAuth.</p>
+                    <div id="tech-auth" class="hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600">
+                        Provides seamless login via OTP and OAuth. Enforces Role-Based Access Control (RBAC) separating Buyers, Sellers, and Admins. Data secured with AES-256 encryption.
+                    </div>
+                </div>
+
+                <!-- Database -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-green-400 hover:shadow-md transition-all cursor-pointer group" onclick="toggleTechDetail('tech-db')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl">&#x1F5C4;&#xFE0F;</div>
+                        <div class="text-slate-300 group-hover:text-green-500 transition-colors">&#x2192;</div>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">MongoDB</h3>
+                    <p class="text-sm text-slate-500 line-clamp-2" id="desc-tech-db">Flexible NoSQL database managing users, products, addresses, and orders.</p>
+                    <div id="tech-db" class="hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600">
+                        Utilized for its schema-less flexibility. Core collections include: Users, Products, Addresses, and Orders. Allows real-time tracking from the Seller Dashboard.
+                    </div>
+                </div>
+
+                <!-- AI RecSys -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-purple-400 hover:shadow-md transition-all cursor-pointer group" onclick="toggleTechDetail('tech-ai')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">&#x1F9E0;</div>
+                        <div class="text-slate-300 group-hover:text-purple-500 transition-colors">&#x2192;</div>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Deep Learning (ResNet)</h3>
+                    <p class="text-sm text-slate-500 line-clamp-2" id="desc-tech-ai">Visual recommendation system for finding similar fashion items.</p>
+                    <div id="tech-ai" class="hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600">
+                        Users upload an image. OpenCV pre-processes it, and a pre-trained ResNet CNN extracts feature vectors. Cosine similarity calculates matches with >90% accuracy in <2 seconds.
+                    </div>
+                </div>
+
+                <!-- Media -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-orange-400 hover:shadow-md transition-all cursor-pointer group" onclick="toggleTechDetail('tech-media')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-xl">&#x1F4F8;</div>
+                        <div class="text-slate-300 group-hover:text-orange-500 transition-colors">&#x2192;</div>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Cloudinary CDN</h3>
+                    <p class="text-sm text-slate-500 line-clamp-2" id="desc-tech-media">Optimized image hosting and delivery API.</p>
+                    <div id="tech-media" class="hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600">
+                        Offloads image storage from the main server. Provides automatic format optimization and rapid global delivery via CDN, crucial for a visual e-commerce interface.
+                    </div>
+                </div>
+
+                <!-- Core Framework -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-800 hover:shadow-md transition-all cursor-pointer group" onclick="toggleTechDetail('tech-core')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-slate-100 text-slate-800 rounded-xl flex items-center justify-center text-xl">&#x26A1;</div>
+                        <div class="text-slate-300 group-hover:text-slate-800 transition-colors">&#x2192;</div>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">Next.js & Vercel</h3>
+                    <p class="text-sm text-slate-500 line-clamp-2" id="desc-tech-core">Server-side rendering, CI/CD, and serverless functions.</p>
+                    <div id="tech-core" class="hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600">
+                        Next.js ensures SEO and fast load times. Vercel provides seamless deployment, handling serverless backend APIs for order processing without dedicated server management.
+                    </div>
+                </div>
+                
+                <!-- Communication -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-rose-400 hover:shadow-md transition-all cursor-pointer group" onclick="toggleTechDetail('tech-mail')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl">&#x1F4E7;</div>
+                        <div class="text-slate-300 group-hover:text-rose-500 transition-colors">&#x2192;</div>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">SMTP Auto Mail</h3>
+                    <p class="text-sm text-slate-500 line-clamp-2" id="desc-tech-mail">Automated transaction and verification workflows.</p>
+                    <div id="tech-mail" class="hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600">
+                        Triggers instant email notifications for order placements, delivery status updates, and seller alerts, ensuring transparent communication without manual intervention.
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-sm text-slate-400 mt-6">&#x1F446; Click cards to expand details</p>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-8 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-xl" aria-hidden="true">&#x267B;&#xFE0F;</span>
+                <span class="font-bold text-slate-800">Renew Wear Analysis</span>
+            </div>
+            <p class="text-sm text-slate-500">Interactive Single Page Application based on End Semester Report</p>
+        </div>
+    </footer>
+
+    <!-- Vanilla JavaScript Logic -->
+    <script>
+        // State Management
+        const appState = {
+            activeTab: 'section-overview',
+            chartsRendered: false,
+            financialView: 'growth' // 'growth' or 'unit'
+        };
+
+        // Chart instances
+        let barriersChart = null;
+        let trustChart = null;
+        let revenueChart = null;
+        let unitChart = null;
+
+        // Navigation Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.nav-tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const targetId = e.target.getAttribute('data-target');
+                    
+                    // Update UI Tabs
+                    tabs.forEach(t => {
+                        if(t.getAttribute('data-target') === targetId) {
+                            t.classList.remove('tab-inactive');
+                            t.classList.add('tab-active');
+                        } else {
+                            t.classList.remove('tab-active');
+                            t.classList.add('tab-inactive');
+                        }
+                    });
+
+                    // Hide all sections
+                    document.querySelectorAll('.content-section').forEach(section => {
+                        section.classList.add('hidden');
+                        section.classList.remove('fade-in');
+                    });
+
+                    // Show target section
+                    const targetSection = document.getElementById(targetId);
+                    targetSection.classList.remove('hidden');
+                    // Force reflow for animation
+                    void targetSection.offsetWidth; 
+                    targetSection.classList.add('fade-in');
+
+                    // Render charts if tab requires it and not yet rendered
+                    if ((targetId === 'section-validation' || targetId === 'section-financials') && !appState.chartsRendered) {
+                        initCharts();
+                        appState.chartsRendered = true;
+                    }
+
+                    // Handle mobile menu close
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
+
+            // Mobile Menu Toggle
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+        });
+
+        // Toggle Tech Detail Cards
+        window.toggleTechDetail = function(id) {
+            const detailEl = document.getElementById(id);
+            const descEl = document.getElementById('desc-' + id);
+            
+            if (detailEl.classList.contains('hidden')) {
+                detailEl.classList.remove('hidden');
+                descEl.classList.remove('line-clamp-2');
+            } else {
+                detailEl.classList.add('hidden');
+                descEl.classList.add('line-clamp-2');
+            }
+        };
+
+        // Toggle Financial Views
+        window.toggleFinancialView = function(view) {
+            appState.financialView = view;
+            const btnGrowth = document.getElementById('btn-growth');
+            const btnUnit = document.getElementById('btn-unit');
+            const viewGrowth = document.getElementById('view-growth');
+            const viewUnit = document.getElementById('view-unit');
+
+            if(view === 'growth') {
+                btnGrowth.className = "px-6 py-2 rounded-md text-sm font-semibold bg-white text-slate-800 shadow-sm transition-all";
+                btnUnit.className = "px-6 py-2 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-700 transition-all";
+                viewGrowth.classList.remove('hidden');
+                viewUnit.classList.add('hidden');
+            } else {
+                btnUnit.className = "px-6 py-2 rounded-md text-sm font-semibold bg-white text-slate-800 shadow-sm transition-all";
+                btnGrowth.className = "px-6 py-2 rounded-md text-sm font-semibold text-slate-500 hover:text-slate-700 transition-all";
+                viewUnit.classList.remove('hidden');
+                viewGrowth.classList.add('hidden');
+            }
+        };
+
+        // Data Storage & Chart Initialization
+        function initCharts() {
+            // Common Chart.js Defaults
+            Chart.defaults.font.family = "'Outfit', sans-serif";
+            Chart.defaults.color = '#64748B';
+            
+            // --- Chart 1: Barriers to Donating (Donut) ---
+            const ctxBarriers = document.getElementById('barriersChart').getContext('2d');
+            barriersChart = new Chart(ctxBarriers, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Not sure where to donate', 'Laziness', 'Lack of awareness', 'Prefer to throw away'],
+                    datasets: [{
+                        data: [90.3, 29.0, 22.6, 3.2],
+                        backgroundColor: ['#0D9488', '#F59E0B', '#6366F1', '#E11D48'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // --- Chart 2: Trust Factors (Horizontal Bar) ---
+            const ctxTrust = document.getElementById('trustChart').getContext('2d');
+            trustChart = new Chart(ctxTrust, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        ['Quality checks &', 'certification'], 
+                        ['Detailed photos &', 'descriptions'], 
+                        ['Clear return/', 'refund policies'], 
+                        ['Verified seller', 'reviews'], 
+                        ['Customer support', 'availability']
+                    ],
+                    datasets: [{
+                        label: '% of Users',
+                        data: [77.4, 71.0, 67.7, 64.5, 58.1],
+                        backgroundColor: '#4F46E5',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ' ' + context.raw + '%'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, max: 100, grid: { color: '#F1F5F9' } },
+                        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // --- Chart 3: Revenue Growth (Line) ---
+            const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctxRevenue, {
+                type: 'line',
+                data: {
+                    labels: ['Launch', 'Year 1', 'Year 2', 'Year 3'],
+                    datasets: [{
+                        label: 'Revenue (Cr)',
+                        data: [0, 1.5, 3.5, 7.0],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#10B981',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ' ₹' + context.raw + ' Cr'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#F1F5F9' }, title: { display: true, text: 'Revenue (INR Crores)'} },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // --- Chart 4: Unit Economics (Stacked Bar) ---
+            const ctxUnit = document.getElementById('unitEconomicsChart').getContext('2d');
+            unitChart = new Chart(ctxUnit, {
+                type: 'bar',
+                data: {
+                    labels: ['Used Bicycle', 'Study Desk', 'Second-Hand Laptop', 'Textbook Set'],
+                    datasets: [
+                        {
+                            label: 'Sourcing Cost (₹)',
+                            data: [1500, 800, 10000, 300],
+                            backgroundColor: '#94A3B8',
+                            stack: 'Stack 0',
+                        },
+                        {
+                            label: 'Processing Cost (₹)',
+                            data: [500, 200, 1500, 50],
+                            backgroundColor: '#F59E0B',
+                            stack: 'Stack 0',
+                        },
+                        {
+                            label: 'Gross Profit (₹)',
+                            data: [2000, 1500, 6500, 550], // Selling Price - (Sourcing + Processing)
+                            backgroundColor: '#10B981',
+                            stack: 'Stack 0',
+                            borderRadius: { topLeft: 6, topRight: 6 }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return ' ' + context.dataset.label + ': ₹' + context.raw; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true, grid: { display: false } },
+                        y: { stacked: true, beginAtZero: true, grid: { color: '#F1F5F9' }, title: { display: true, text: 'Amount (INR)'} }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
